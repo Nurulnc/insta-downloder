@@ -4,19 +4,30 @@ async function download() {
   resultDiv.innerHTML = "Loading...";
 
   try {
-    const res = await fetch(`https://api.igram.world/api/ig?url=${encodeURIComponent(url)}`);
-    const data = await res.json();
+    const formData = new FormData();
+    formData.append("q", url);
 
-    if (data.data && data.data.length > 0) {
+    const response = await fetch("https://www.saveig.app/api/ajaxSearch", {
+      method: "POST",
+      body: formData
+    });
+
+    const data = await response.json();
+
+    if (data && data.data && data.data.length > 0) {
       let html = '';
       data.data.forEach(media => {
-        html += `<a href="${media.url}" target="_blank" download><img src="${media.thumbnail}" width="100%" style="margin-top:10px;"></a>`;
+        html += `
+          <a href="${media.url}" target="_blank" download>
+            <img src="${media.thumbnail || media.url}" width="100%" style="margin-top:10px;" />
+          </a>
+        `;
       });
       resultDiv.innerHTML = html;
     } else {
-      resultDiv.innerHTML = "Failed to fetch media. Check the URL.";
+      resultDiv.innerHTML = "❌ Media not found or invalid link.";
     }
   } catch (error) {
-    resultDiv.innerHTML = "Error: " + error.message;
+    resultDiv.innerHTML = "❌ Error: " + error.message;
   }
 }
